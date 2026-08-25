@@ -1,42 +1,50 @@
 # POL-REPO-001
 ## Política de Repositorios Seguros
  
-### 1. Alcance
+## 1. Alcance
 
 Esta política aplica al repositorio SecureBank API y a cualquier repositorio utilizado para el desarrollo de software dentro de la organización
  
 ---
  
-### 2. Roles y Responsabilidades
+## 2. Roles y Responsabilidades
  
-#### Developer
-- Desarrollar código siguiendo buenas prácticas de seguridad.
-- Crear ramas de trabajo para nuevas funcionalidades.
-- Enviar cambios mediante Pull Request.
- 
-#### Reviewer
-- Revisar cambios antes de aprobar un Pull Request.
-- Verificar calidad y seguridad del código.
- 
-#### Code Owner
-- Responsable de autorizar cambios en archivos críticos.
-- Mantener estándares de seguridad del proyecto.
+### Sofía Zenteno
+Roles:
+- Code Owner
+- Reviewer
 
+Responsabilidades:
+- Revisar Pull Requests.
+- Aprobar cambios en archivos críticos.
+- Verificar el cumplimiento de las políticas de seguridad.
+- Supervisar la protección de la rama principal.
+
+### Genessis Inalef
+Roles:
+- Developer
+- Secret Custodian
+
+Responsabilidades:
+- Desarrollar funcionalidades.
+- Gestionar secretos y credenciales.
+- Evitar la exposición de información sensible en el repositorio.
+- Apoyar revisiones de seguridad.
+
+### Christine Maulen
+Roles:
+- Developer
+- Release Manager
  
-
-#### Release Manager
-
-- Autorizar versiones oficiales del sistema.
+Responsabilidades:
+- Desarrollar funcionalidades.
 - Gestionar tags y releases.
- 
-
-#### Secret Custodian
-- Administrar secretos y credenciales.
-- Supervisar la rotación de claves y accesos.
+- Coordinar versiones publicables.
+- Mantener el registro de cambios del proyecto.
  
 ---
  
-### 3. Reglas Técnicas Obligatorias
+## 3. Reglas Técnicas Obligatorias
  
 - MFA obligatorio para todos los integrantes.
 - Rama main protegida.
@@ -49,7 +57,7 @@ Esta política aplica al repositorio SecureBank API y a cualquier repositorio ut
  
 ---
  
-### 4. Matriz de Permisos
+## 4. Matriz de Permisos
  
 | Acción | Responsable |
 |----------|----------|
@@ -60,7 +68,7 @@ Esta política aplica al repositorio SecureBank API y a cualquier repositorio ut
  
 ---
  
-### 5. Excepciones y Revisión
+## 5. Excepciones y Revisión
 
 Los cambios críticos o hotfix podrán ser aprobados mediante revisión acelerada por el responsable del proyecto.
 La política será revisada periódicamente para asegurar su vigencia y efectividad.
