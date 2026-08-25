@@ -5,9 +5,7 @@
 
 Esta política aplica al repositorio SecureBank API y a cualquier repositorio utilizado para el desarrollo de software dentro de la organización
  
-8
 ---
-9
  
 ### 2. Roles y Responsabilidades
  
