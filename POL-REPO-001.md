@@ -5,38 +5,39 @@
 
 Esta política aplica al repositorio SecureBank API y a cualquier repositorio utilizado para el desarrollo de software dentro de la organización
  
-8
----
-9
- 
-### 2. Roles y Responsabilidades
- 
-#### Developer
-- Desarrollar código siguiendo buenas prácticas de seguridad.
-- Crear ramas de trabajo para nuevas funcionalidades.
-- Enviar cambios mediante Pull Request.
- 
-#### Reviewer
-- Revisar cambios antes de aprobar un Pull Request.
-- Verificar calidad y seguridad del código.
- 
-#### Code Owner
-- Responsable de autorizar cambios en archivos críticos.
-- Mantener estándares de seguridad del proyecto.
+## 2. Roles y Responsabilidades
+### Sofía Belén Zenteno Jaureguis
+Roles:
+- Code Owner
+- Reviewer
 
- 
+Responsabilidades:
+- Revisar Pull Requests.
+- Aprobar cambios en archivos críticos.
+- Verificar el cumplimiento de las políticas de seguridad.
+- Supervisar la protección de la rama principal.
 
-#### Release Manager
+### Genessis Inalef
+Roles:
+- Developer
+- Secret Custodian
 
-- Autorizar versiones oficiales del sistema.
+Responsabilidades:
+- Desarrollar funcionalidades.
+- Gestionar secretos y credenciales.
+- Evitar la exposición de información sensible en el repositorio.
+- Apoyar revisiones de seguridad.
+
+### Christine Maulen
+Roles:
+- Developer
+- Release Manager
+ 
+Responsabilidades:
+- Desarrollar funcionalidades.
 - Gestionar tags y releases.
- 
-
-#### Secret Custodian
-- Administrar secretos y credenciales.
-- Supervisar la rotación de claves y accesos.
- 
----
+- Coordinar versiones publicables.
+- Mantener el registro de cambios del proyecto.
  
 ### 3. Reglas Técnicas Obligatorias
  
