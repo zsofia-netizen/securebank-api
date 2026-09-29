@@ -8,27 +8,27 @@ Automatizar la validación del código y aplicar controles de seguridad durante 
 
 Developer
 
-↓
+   ↓
 
 GitHub Repository
 
-↓
+   ↓
 
 GitHub Actions
 
-↓
+   ↓
 
-Build
+ Build
 
-↓
+  ↓
 
 Unit Tests
 
-↓
+  ↓
 
 Security Checks
 
-↓
+  ↓
 
 Artifact
 
