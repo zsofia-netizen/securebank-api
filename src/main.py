@@ -1,5 +1,5 @@
 def get_status():
-return "SecureBank API"
- 
+    return "SecureBank API"
+
 if __name__ == "__main__":
-print(get_status())
+    print(get_status())
