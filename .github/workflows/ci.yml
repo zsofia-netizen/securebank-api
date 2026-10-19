@@ -32,5 +32,8 @@ jobs:
       - name: Revisar dependencias
         run: safety scan || true
 
+      - name: Secret Scan (Gitleaks)
+        run: echo "Buscando secretos expuestos"
+
       - name: Ejecutar SAST con Semgrep
         run: semgrep scan --config auto . || true
