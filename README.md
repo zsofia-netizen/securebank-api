@@ -32,4 +32,16 @@ El proyecto integra prácticas DevSecOps mediante:
 - Safety
 - Semgrep (SAST)
 
+## Controles DevSecOps
+
+El proyecto implementa los siguientes controles:
+
+- Pytest (Pruebas automáticas)
+- pip-audit (SCA)
+- Safety (Análisis de dependencias)
+- Gitleaks (Detección de secretos)
+- Semgrep (SAST)
+
+Estos controles se ejecutan automáticamente mediante GitHub Actions.
+
 Estas herramientas permiten identificar errores de calidad y vulnerabilidades de seguridad antes de integrar cambios al repositorio.
