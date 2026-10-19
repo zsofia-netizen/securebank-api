@@ -74,5 +74,38 @@ La detección automática se realiza mediante:
 
 - Reducción de exposición de credenciales.
 - Menor riesgo de compromiso de cuentas.
+
+---
+
+# Integración con el Pipeline DevSecOps
+
+La gestión de secretos forma parte del pipeline CI/CD de SecureBank API.
+
+## Controles Implementados
+
+- GitHub Secrets para almacenar credenciales de forma segura.
+- Escaneo preventivo mediante Gitleaks.
+- Revisiones de Pull Request.
+- Validaciones automáticas antes de integrar cambios.
+
+## Flujo
+
+Push / Pull Request
+↓
+Pruebas automáticas (Pytest)
+↓
+Análisis de dependencias (pip-audit)
+↓
+Revisión de dependencias (Safety)
+↓
+Escaneo de secretos (Gitleaks)
+↓
+Análisis SAST (Semgrep)
+↓
+Resultado del Pipeline
+
+## Objetivo
+
+Detectar y prevenir la exposición accidental de credenciales, tokens y claves sensibles durante el desarrollo.
 - Cumplimiento de buenas prácticas DevSecOps.
 ``
