@@ -1,0 +1,32 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "securebank-api"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "pytest",
+      "version": "8.4.2"
+    },
+    {
+      "type": "library",
+      "name": "pip-audit",
+      "version": "2.9.0"
+    },
+    {
+      "type": "library",
+      "name": "safety",
+      "version": "3.6.2"
+    },
+    {
+      "type": "library",
+      "name": "semgrep"
+    }
+  ]
+}
