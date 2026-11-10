@@ -130,6 +130,11 @@ Resultado del Pipeline
 ## Objetivo
 
 Detectar y prevenir la exposición accidental de credenciales, tokens y claves sensibles durante el desarrollo.
+
+### Beneficios Esperados
+
 - Cumplimiento de buenas prácticas DevSecOps.
+- Reducción de exposición de credenciales.
+- Disminución del riesgo de compromiso de cuentas.
 
 
