@@ -29,6 +29,29 @@ Se utilizarán:
 
 ---
 
+# Alternativas Elegidas
+
+## Desarrollo Local
+
+Variables de entorno (.env excluido mediante .gitignore).
+
+## Pipeline CI/CD
+
+GitHub Secrets para almacenar credenciales cifradas.
+
+## Escalamiento Futuro
+
+HashiCorp Vault para gestión centralizada de secretos.
+
+OIDC para autenticación mediante credenciales temporales.
+
+## Justificación
+
+Los secretos permanecen fuera del código fuente y se entregan únicamente cuando son requeridos por la aplicación o el pipeline.
+
+
+---
+
 # Política de Rotación
 
 ## Secretos Críticos
@@ -108,29 +131,5 @@ Resultado del Pipeline
 
 Detectar y prevenir la exposición accidental de credenciales, tokens y claves sensibles durante el desarrollo.
 - Cumplimiento de buenas prácticas DevSecOps.
-
----
-
-# Alternativas Elegidas
-
-## Desarrollo Local
-
-Variables de entorno (.env excluido mediante .gitignore).
-
-## Pipeline CI/CD
-
-GitHub Secrets para almacenar credenciales cifradas.
-
-## Escalamiento Futuro
-
-HashiCorp Vault para gestión centralizada de secretos.
-
-OIDC para autenticación mediante credenciales temporales.
-
-## Justificación
-
-Los secretos permanecen fuera del código fuente y se entregan únicamente cuando son requeridos por la aplicación o el pipeline.
-
-
 
 
