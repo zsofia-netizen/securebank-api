@@ -1,0 +1,12 @@
+# Cómo subir esto a GitHub
+
+```bash
+cd tu-repo-securepipeline
+# copia estas carpetas/archivos a la raíz del repo, luego:
+git checkout -b feature/sesion10-11-contenedores-iac
+git add docker/ .dockerignore .github/workflows/iac.yml reports/ infra/
+git commit -m "feat: Dockerfile endurecido + pipeline IaC Security (sesiones 10 y 11)"
+git push -u origin feature/sesion10-11-contenedores-iac
+```
+Luego abre un Pull Request hacia `main` en GitHub.
+Antes de subir: nunca incluyas `.env`, claves ni `*.tfstate` (agrégalos al `.gitignore`).
