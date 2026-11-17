@@ -1,0 +1,87 @@
+name: IaC Security Pipeline
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+    branches: [main]
+
+env:
+  TF_DIR: infra/terraform   # <- ajusta a la carpeta real de SecureBank-Infra
+
+permissions:
+  contents: read
+
+jobs:
+  iac-scan:
+    name: IaC Scan (Checkov)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Instalar Checkov
+        run: pip install checkov
+      - name: Escanear Terraform (reportes JSON + CLI)
+        run: |
+          mkdir -p reports
+          checkov -d "$TF_DIR" --compact \
+            -o cli -o json --output-file-path console,reports/ \
+            --soft-fail
+      - name: Guardar reporte
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkov-report
+          path: reports/
+
+  gate:
+    name: Security Gate
+    needs: iac-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install checkov
+      - name: Fallar si hay checks fallidos
+        run: checkov -d "$TF_DIR" --compact   # exit code != 0 si hay FAILED -> bloquea el pipeline
+
+  plan:
+    name: Terraform Plan
+    needs: gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Init + Validate + Plan
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          terraform init -input=false
+          terraform validate
+          terraform plan -input=false -out=tfplan
+
+  apply:
+    name: Terraform Apply
+    needs: plan
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: production   # aprobación manual configurable en Settings > Environments
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Apply
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          terraform init -input=false
+          terraform apply -input=false -auto-approve
