@@ -1,0 +1,51 @@
+# Reporte comparativo — securebank:v1 vs securebank:v2-secure
+
+**Sesión 10 · Seguridad de Contenedores y Docker** · SecurePipeline / SecureBank API
+
+> Reemplaza todo lo que diga `<COMPLETAR>` con los valores reales de TU laboratorio.
+
+## 1. Comandos usados
+
+```bash
+docker build -f docker/Dockerfile.v1 -t securebank:v1 .
+docker build -f docker/Dockerfile.v2 -t securebank:v2-secure .
+docker images | grep securebank
+trivy image --severity HIGH,CRITICAL --format table securebank:v1
+trivy image --severity HIGH,CRITICAL --format table securebank:v2-secure
+trivy image -f json -o reports/trivy-v1.json securebank:v1
+trivy image -f json -o reports/trivy-v2.json securebank:v2-secure
+docker run --rm securebank:v2-secure whoami      # esperado: appuser
+```
+
+## 2. Tabla comparativa
+
+| Métrica | securebank:v1 | securebank:v2-secure | Δ mejora |
+|---|---|---|---|
+| Vulnerabilidades (HIGH + CRITICAL) | `<COMPLETAR>` | `<COMPLETAR>` | `<COMPLETAR>` |
+| Tamaño de la imagen | `<COMPLETAR>` MB | `<COMPLETAR>` MB | `<COMPLETAR>` |
+| Paquetes instalados | `<COMPLETAR>` | `<COMPLETAR>` | `<COMPLETAR>` |
+| Usuario de ejecución | root (uid 0) | appuser (10001) | mínimo privilegio |
+| Puertos expuestos | 22 (SSH) | 8000 (HTTP) | acorde al servicio |
+
+## 3. Justificación de cada cambio en el Dockerfile
+
+| Cambio | Por qué |
+|---|---|
+| `ubuntu:latest` → `python:3.11.9-slim-bookworm` | Menos paquetes y binarios, menos CVEs; tag fijo = build reproducible. |
+| `USER root` → `USER appuser` (uid 10001) | Un escape del contenedor ya no da root en el host. |
+| `COPY . .` → `COPY ./app ./app` + `.dockerignore` | Evita que `.env`, `.git` y credenciales queden grabados en una capa. |
+| `EXPOSE 22` → `EXPOSE 8000` | Una API HTTP no necesita SSH; reduce superficie de ataque. |
+| `--no-install-recommends` + limpiar `/var/lib/apt/lists` + `--no-cache-dir` | Menos paquetes y menor tamaño. |
+| `tini` como ENTRYPOINT | Manejo correcto de señales y procesos zombie. |
+
+## 4. Evidencia
+
+- Salida Trivy v1: `reports/trivy-v1.json` / captura `<COMPLETAR>`
+- Salida Trivy v2: `reports/trivy-v2.json` / captura `<COMPLETAR>`
+- `docker run --rm securebank:v2-secure whoami` → captura `<COMPLETAR>`
+
+## 5. Conclusión y riesgos residuales
+
+`<COMPLETAR>` Ideas a evaluar: CVEs que siguen apareciendo en la imagen base, falta de
+filesystem de solo lectura (`--read-only`), ausencia de firma de imágenes, dependencias
+Python sin escanear (pip-audit/Safety), uso de digest `@sha256:` en vez de solo tag.
