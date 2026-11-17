@@ -1,0 +1,9 @@
+# securebank:v1 — INSEGURO (solo para el laboratorio, NO usar en producción)
+# Problemas: tag latest, imagen pesada, root, COPY . ., puerto SSH
+FROM ubuntu:latest
+
+USER root
+
+COPY . .
+
+EXPOSE 22
