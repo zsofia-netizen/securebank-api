@@ -1,0 +1,38 @@
+# Informe técnico — Pipeline IaC Security
+
+**Sesión 11 · Infrastructure as Code y Cloud Security** · SecureBank-Infra
+
+> Reemplaza los `<COMPLETAR>` con tus resultados reales de Checkov.
+
+## 1. Security Score
+
+Security Score = (checks_passed / checks_total) × 100
+
+| | Antes | Después |
+|---|---|---|
+| Checks passed / total | `<COMPLETAR>` | `<COMPLETAR>` |
+| **Security Score** | `<COMPLETAR>` % | `<COMPLETAR>` % (meta ≥ 85 %) |
+| CRITICAL abiertos | `<COMPLETAR>` | 0 |
+| HIGH abiertos | `<COMPLETAR>` | 0 |
+
+Reportes: `reports/checkov-before.json` y `reports/checkov-after.json`
+
+## 2. Los 5 hallazgos más críticos
+
+| # | Check ID | Recurso | Problema | Corrección aplicada |
+|---|---|---|---|---|
+| 1 | `<COMPLETAR>` | `<COMPLETAR>` | `<COMPLETAR>` | `<COMPLETAR>` |
+| 2 | | | | |
+| 3 | | | | |
+| 4 | | | | |
+| 5 | | | | |
+
+## 3. Pipeline
+
+- Archivo: `.github/workflows/iac.yml` (scan → gate → plan → apply)
+- Captura del pipeline en verde con el gate aplicado: `<COMPLETAR>`
+- Captura de un commit con violación CRITICAL bloqueado: `<COMPLETAR>`
+
+## 4. Conclusión
+
+`<COMPLETAR>`
