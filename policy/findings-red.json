@@ -1,0 +1,10 @@
+{
+  "sast": {
+    "critical": 1
+  },
+  "secrets": 0,
+  "sca": {
+    "high": 1
+  },
+  "coverage": 90
+}
