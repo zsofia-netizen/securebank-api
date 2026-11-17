@@ -1,0 +1,28 @@
+# securebank:v2-secure — endurecido (6 buenas prácticas de la Sesión 10)
+
+# 1. Base mínima y versionada (no latest)
+FROM python:3.11.9-slim-bookworm
+
+# 2. Solo lo necesario, sin caché de apt
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends tini && \
+    rm -rf /var/lib/apt/lists/*
+
+# 3. Usuario dedicado, sin privilegios
+RUN adduser --disabled-password --gecos "" --uid 10001 appuser
+
+WORKDIR /app
+
+# 4. Dependencias primero (aprovecha caché de capas)
+COPY --chown=appuser:appuser requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 5. Código, filtrado por .dockerignore (sin .env ni .git)
+COPY --chown=appuser:appuser ./app ./app
+
+# 6. Ejecutar sin root y exponer solo el puerto de la aplicación
+USER appuser
+EXPOSE 8000
+
+ENTRYPOINT ["tini", "--"]
+CMD ["python", "-m", "app.main"]
