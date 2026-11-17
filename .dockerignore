@@ -1,0 +1,12 @@
+.env
+.env.*
+.git
+.gitignore
+__pycache__
+*.pyc
+*.pem
+*.key
+node_modules
+tests
+docs
+*.md
