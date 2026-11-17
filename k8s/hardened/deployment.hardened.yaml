@@ -1,1 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: securebank-api
+  namespace: securebank
+  labels:
+    app: securebank-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: securebank-api
+  template:
+    metadata:
+      labels:
+        app: securebank-api
+    spec:
+      serviceAccountName: securebank-sa
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001            # explícito y > 1000
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          # Imagen por DIGEST (no :latest). Reemplazar con el sha256 que imprime el pipeline.
+          image: ghcr.io/TU_USUARIO/securebank-api@sha256:REEMPLAZAR_CON_DIGEST_REAL
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:       # nunca env.value
+                  name: db-credentials
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
 
