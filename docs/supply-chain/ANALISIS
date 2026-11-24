@@ -1,4 +1,4 @@
-Análisis del caso: detección de una imagen alterada
+`Análisis del caso: detección de una imagen alterada
 Sesión 13 · Software Supply Chain Security · SecurePipeline
 Escenario. Un atacante reemplaza `securebank:v1` en el registry por una imagen modificada. ¿Cómo se detecta antes de que llegue a producción?
 Un tag como `:v1` es mutable: se puede reapuntar a otra imagen sin cambiar su nombre. Por eso la defensa no puede basarse en el tag, sino en tres verificaciones complementarias que usan el digest (sha256), que es la identidad real de una imagen.
@@ -6,4 +6,4 @@ Un tag como `:v1` es mutable: se puede reapuntar a otra imagen sin cambiar su no
 2. El digest no coincide. El tag `:v1` ahora apunta a un digest distinto del que se firmó y aprobó. Como el pipeline despliega por digest y lo registra en los logs (`sha256:…`), la comparación contra el valor de referencia detecta el cambio y el deploy se bloquea. El digest prueba la integridad.
 3. El admission controller rechaza. En el clúster (Kubernetes), una política (por ejemplo, Sigstore policy-controller) rechaza imágenes sin firma válida o con identidad desconocida, de modo que el Pod nunca arranca. Funciona como última barrera aunque las verificaciones del pipeline se salten o fallen.
 Defensa en capas. Las tres son complementarias: la firma prueba el origen, el digest prueba la integridad y el admission controller impide el despliegue aunque las otras dos fallen.
-Límite que hay que reconocer. Una firma válida no demuestra que el build sea confiable: en SolarWinds el código malicioso salió firmado desde un build comprometido. Por eso se complementa con provenance (SLSA) y builds aislados y efímeros.
+Límite que hay que reconocer. Una firma válida no demuestra que el build sea confiable: en SolarWinds el código malicioso salió firmado desde un build comprometido. Por eso se complementa con provenance (SLSA) y builds aislados y efímeros.`
