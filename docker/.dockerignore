@@ -1,0 +1,16 @@
+# Secretos
+.env
+.env.*
+*.pem
+*.key
+
+# Control de versiones y basura
+.git
+.gitignore
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.github/
+docker/
+*.md
