@@ -1,0 +1,127 @@
+name: supply-chain
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build:
+    name: Build y publicar digest
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
+      image: ${{ steps.name.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: name
+        run: echo "image=${REGISTRY}/${GITHUB_REPOSITORY,,}/securebank" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.v2-secure
+          push: true
+          tags: ${{ steps.name.outputs.image }}:v1
+
+      - name: Registrar digest para trazabilidad
+        run: |
+          echo "IMAGEN : ${{ steps.name.outputs.image }}:v1"
+          echo "DIGEST : ${{ steps.push.outputs.digest }}"
+          echo "### Digest publicado" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`${{ steps.push.outputs.digest }}\`" >> "$GITHUB_STEP_SUMMARY"
+
+  sbom-sign:
+    name: SBOM, firma y attestation
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write   # identidad OIDC para firma keyless
+    env:
+      IMG: ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
+    steps:
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: sigstore/cosign-installer@v3
+
+      - name: Generar SBOM CycloneDX con Syft
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.IMG }}
+          format: cyclonedx-json
+          output-file: sbom.cdx.json
+          artifact-name: sbom.cdx.json
+          upload-artifact: true
+
+      - name: Cantidad de componentes del SBOM
+        run: jq '.components | length' sbom.cdx.json
+
+      - name: Firmar el digest (keyless)
+        run: cosign sign --yes "$IMG"
+
+      - name: Adjuntar SBOM como attestation
+        run: cosign attest --yes --predicate sbom.cdx.json --type cyclonedx "$IMG"
+
+  verify:
+    name: Verificar antes del deploy
+    needs: [build, sbom-sign]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    env:
+      IMG: ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
+    steps:
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: sigstore/cosign-installer@v3
+
+      - name: Verificar firma (si falla => exit 1 => pipeline rojo)
+        run: |
+          cosign verify \
+            --certificate-identity-regexp "^https://github.com/${{ github.repository }}/" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            "$IMG" || exit 1
+
+      - name: Verificar attestation del SBOM
+        run: |
+          cosign verify-attestation --type cyclonedx \
+            --certificate-identity-regexp "^https://github.com/${{ github.repository }}/" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            "$IMG" > /dev/null
+
+  deploy:
+    name: Deploy (simulado)
+    needs: [build, verify]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deploy autorizado solo para ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}"
