@@ -1,51 +1,63 @@
-# Reporte comparativo — securebank:v1 vs securebank:v2-secure
-
-**Sesión 10 · Seguridad de Contenedores y Docker** · SecurePipeline / SecureBank API
-
-> Reemplaza todo lo que diga `<COMPLETAR>` con los valores reales de TU laboratorio.
-
-## 1. Comandos usados
-
+Reporte comparativo — securebank:v1 vs securebank:v2-secure
+Sesión 10 · Seguridad de Contenedores y Docker · DevSecOps (UBO)
+> Completa todo lo marcado como **[COMPLETAR]** con tus resultados reales. No dejes las cifras de referencia de la PPT.
+1. Comandos usados
 ```bash
-docker build -f docker/Dockerfile.v1 -t securebank:v1 .
-docker build -f docker/Dockerfile.v2 -t securebank:v2-secure .
-docker images | grep securebank
-trivy image --severity HIGH,CRITICAL --format table securebank:v1
-trivy image --severity HIGH,CRITICAL --format table securebank:v2-secure
-trivy image -f json -o reports/trivy-v1.json securebank:v1
-trivy image -f json -o reports/trivy-v2.json securebank:v2-secure
-docker run --rm securebank:v2-secure whoami      # esperado: appuser
+docker build -f docker/Dockerfile.v1        -t securebank:v1 .
+docker build -f docker/Dockerfile.v2-secure -t securebank:v2-secure .
+
+trivy image --severity HIGH,CRITICAL securebank:v1        | tee trivy-v1.txt
+trivy image --severity HIGH,CRITICAL securebank:v2-secure | tee trivy-v2.txt
+
+docker images securebank
+docker run --rm securebank:v1        id
+docker run --rm securebank:v2-secure id
+docker inspect --format '{{.Config.ExposedPorts}}' securebank:v1
+docker inspect --format '{{.Config.ExposedPorts}}' securebank:v2-secure
+docker run --rm securebank:v1        sh -c "dpkg -l | wc -l"
+docker run --rm securebank:v2-secure sh -c "dpkg -l | wc -l"
 ```
-
-## 2. Tabla comparativa
-
-| Métrica | securebank:v1 | securebank:v2-secure | Δ mejora |
-|---|---|---|---|
-| Vulnerabilidades (HIGH + CRITICAL) | `<COMPLETAR>` | `<COMPLETAR>` | `<COMPLETAR>` |
-| Tamaño de la imagen | `<COMPLETAR>` MB | `<COMPLETAR>` MB | `<COMPLETAR>` |
-| Paquetes instalados | `<COMPLETAR>` | `<COMPLETAR>` | `<COMPLETAR>` |
-| Usuario de ejecución | root (uid 0) | appuser (10001) | mínimo privilegio |
-| Puertos expuestos | 22 (SSH) | 8000 (HTTP) | acorde al servicio |
-
-## 3. Justificación de cada cambio en el Dockerfile
-
-| Cambio | Por qué |
-|---|---|
-| `ubuntu:latest` → `python:3.11.9-slim-bookworm` | Menos paquetes y binarios, menos CVEs; tag fijo = build reproducible. |
-| `USER root` → `USER appuser` (uid 10001) | Un escape del contenedor ya no da root en el host. |
-| `COPY . .` → `COPY ./app ./app` + `.dockerignore` | Evita que `.env`, `.git` y credenciales queden grabados en una capa. |
-| `EXPOSE 22` → `EXPOSE 8000` | Una API HTTP no necesita SSH; reduce superficie de ataque. |
-| `--no-install-recommends` + limpiar `/var/lib/apt/lists` + `--no-cache-dir` | Menos paquetes y menor tamaño. |
-| `tini` como ENTRYPOINT | Manejo correcto de señales y procesos zombie. |
-
-## 4. Evidencia
-
-- Salida Trivy v1: `reports/trivy-v1.json` / captura `<COMPLETAR>`
-- Salida Trivy v2: `reports/trivy-v2.json` / captura `<COMPLETAR>`
-- `docker run --rm securebank:v2-secure whoami` → captura `<COMPLETAR>`
-
-## 5. Conclusión y riesgos residuales
-
-`<COMPLETAR>` Ideas a evaluar: CVEs que siguen apareciendo en la imagen base, falta de
-filesystem de solo lectura (`--read-only`), ausencia de firma de imágenes, dependencias
-Python sin escanear (pip-audit/Safety), uso de digest `@sha256:` en vez de solo tag.
+2. Salida de `trivy image`
+securebank:v1
+```
+[COMPLETAR: pegar el resumen de trivy-v1.txt]
+```
+securebank:v2-secure
+```
+[COMPLETAR: pegar el resumen de trivy-v2.txt]
+```
+3. Tabla comparativa
+Métrica	securebank:v1	securebank:v2-secure	Mejora
+Vulnerabilidades (HIGH + CRITICAL)	[COMPLETAR]	[COMPLETAR]	[COMPLETAR]
+Tamaño de la imagen	[COMPLETAR]	[COMPLETAR]	[COMPLETAR]
+Paquetes instalados	[COMPLETAR]	[COMPLETAR]	[COMPLETAR]
+Usuario de ejecución	root (uid 0)	appuser (uid 10001)	Mínimo privilegio
+Puertos expuestos	22 (SSH), 8000	8000 (HTTP)	Solo el del servicio
+Por qué cambia cada métrica
+Vulnerabilidades: la imagen slim trae muchos menos paquetes del sistema y sin `curl` ni `gcc`, así que hay menos componentes que puedan tener CVEs.
+Tamaño: se pasa de la imagen completa de Python a una slim, sin compiladores ni cachés de apt o pip.
+Paquetes: menos paquetes porque no se instalan `curl` ni `gcc` y la base ya es mínima.
+Usuario: el proceso corre con UID 10001 en vez de root, por lo que un compromiso de la app no da privilegios de root dentro del contenedor.
+Puertos: se elimina `EXPOSE 22` porque la API no necesita SSH; solo se declara 8000.
+4. Cambios aplicados al Dockerfile
+Cambio	Qué hace	Riesgo que mitiga
+`FROM python:3.11.9-slim-bookworm` (tag versionado)	Base mínima y reproducible	Superficie de ataque grande, builds no reproducibles con `latest`
+Sin `apt-get install curl gcc`	No hay herramientas de compilación ni descarga en runtime	Herramientas útiles para un atacante, más CVEs
+`COPY requirements.txt` + `pip install --no-cache-dir`	Instala dependencias sin caché	Imagen más grande, residuos
+`COPY app/` en vez de `COPY . .`	Copia solo el código necesario	Filtración del `.env` y otros archivos a las capas
+`.dockerignore`	Excluye `.env`, `.git`, `*.pem`, `__pycache__/`	Secretos y basura en el contexto de build
+`USER 10001`	Ejecuta sin privilegios	Escalada de privilegios y acceso root
+`EXPOSE 8000` únicamente	Declara solo el puerto del servicio	SSH expuesto sin justificación
+Nota sobre capas: cada instrucción crea una capa inmutable, así que un secreto copiado con `COPY` queda en la imagen aunque un `RUN rm` posterior lo borre (se ve con `docker history`). Si la credencial fuera real, habría que rotarla y reconstruir la imagen.
+5. Evidencia visual
+[COMPLETAR] Captura de `trivy image` de v1
+[COMPLETAR] Captura de `trivy image` de v2-secure
+[COMPLETAR] Captura de `docker images securebank` (tamaños)
+[COMPLETAR] Captura de `docker run ... id` (uid 0 vs 10001)
+6. Conclusión y riesgos residuales
+Con el Dockerfile endurecido bajan las vulnerabilidades, el tamaño y la superficie de ataque, y el proceso deja de correr como root. Aun así quedan riesgos por mitigar:
+Una imagen más pequeña o no-root no garantiza cero vulnerabilidades: [COMPLETAR: cuántas HIGH/CRITICAL quedan y de qué paquetes].
+La base sigue siendo de terceros: conviene fijarla por digest y reconstruir periódicamente.
+Trivy debe correr en el pipeline y fallar el build si aparecen CVEs críticas.
+Faltan controles de runtime: sistema de archivos de solo lectura, `--cap-drop=ALL`, límites de recursos.
+Vulnerabilidades en las dependencias de Python (`requirements.txt`) se cubren con SCA, no solo con el escaneo de la imagen.
